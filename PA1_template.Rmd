@@ -1,0 +1,73 @@
+PA1_template R markdown file
+============================
+
+Make a histogram of the total number of steps taken each day
+============================================================
+
+```{r }
+#read data
+data <- read.csv("C:\\EDA\\R\\markdown\\Activity.csv")
+#data
+
+# drop na as the req states to ignore the NAs
+subdata <- data[complete.cases(data),]
+#subdata
+
+# bin data by date and apply sum on each bin. Also, remove na.
+#agdata <- aggregate(data$steps, by=list((substr(data$date,1,10))), sum, na.rm=TRUE)
+agdata <- aggregate(subdata$steps, by=list((substr(subdata$date,1,10))), sum, na.rm=TRUE)
+#agdata
+
+# check the column names
+#names(agdata)
+
+# plot histogram that shows the frequency of the data in certain ranges
+hist(agdata$x, main="Total number of steps taken each day", xlab="# of steps")
+```
+
+Calculate and report the mean and median total number of steps taken per day
+============================================================================
+
+```{r}
+# note we can use agdata from previous steps
+#agdata
+mean (agdata$x)
+median (agdata$x)
+
+```
+
+
+Make a time series plot of the 5-minute interval and the average number of steps taken
+======================================================================================
+
+```{r}
+# it does not say to ignore the NA for this part 
+avgdata <- aggregate(subdata$steps, by=list((substr(subdata$date,1,10))), mean, na.rm=FALSE)
+avgdata
+
+tsplot <- ts(avgdata)
+#tsplot
+plot.ts(avgdata$x, main="Avg # of steps taken (averaged on a daily basis)", xlab="5-minute interval", ylab = "Avg # of steps taken")
+```
+
+Which 5-minute interval contains maximum number of steps?
+=========================================================
+
+```{r}
+max(avgdata$Group.1, avgdata$x)
+```
+
+Total # of NAs
+==============
+
+```{r}
+sum( is.na(data) )
+#data[is.na(data)] <- 0
+
+#mx <- ddply(mx, .(groups), function(df) {df$value[is.na(df$value)] <- mean(df$value, na.rm=TRUE); return(df)})
+library (plyr)
+mymean <- function(data) { replace(data, is.na(data), mean(data, na.rm=TRUE) ) }
+
+data2 <- ddply(data, .(groups), function(data){ data$steps[is.na(data$steps)] <- mean(data$steps, na.rm=TRUE); return(data) } )
+data2
+```
